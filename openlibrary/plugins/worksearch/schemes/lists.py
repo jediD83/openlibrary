@@ -9,7 +9,7 @@ logger = logging.getLogger("openlibrary.worksearch")
 
 class ListSearchScheme(SearchScheme):
     universe = ['type:list']
-    all_fields = {  # I have no idea what else to add.
+    all_fields = {
         'key',
         'name',
         'seed',
@@ -22,6 +22,7 @@ class ListSearchScheme(SearchScheme):
         'place_key',
         'time_key',
     }
+    non_solr_fields: set[str] = set()
     facet_fields: set[str] = set()
     field_name_map: dict[str, str] = {}
     sorts = {

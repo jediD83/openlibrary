@@ -1,7 +1,7 @@
 $def with (get_results)
 
 $ q = query_param('q', '').strip()
-$ results_per_page = 10
+$ results_per_page = 100
 $ page = query_param('page')
 $if page:
     $ page = int(page)
@@ -39,7 +39,7 @@ $var title: $_('Search results for Lists')
             <div class="mybooks-list">
                 $if results.num_found:
                     <ul id="listResults" class="list-books">
-                        $for list in lists:
+                        for list in results:
                             <li class="searchResultItem" id="list-$loop.index">$:render_template("lists/preview", list)</li>
                     </ul>
                 $else:

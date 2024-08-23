@@ -1,13 +1,4 @@
-$def with (get_results)
-
-$ q = query_param('q', '').strip()
-$ results_per_page = 100
-$ page = query_param('page')
-$if page:
-    $ page = int(page)
-$else:
-    $ page = 1
-$ offset = (page - 1) * results_per_page
+$def with (q, lists)
 
 $var title: $_('Search results for Lists')
 
@@ -19,35 +10,22 @@ $var title: $_('Search results for Lists')
     $:macros.SearchNavigation()
 
     <div class="section">
-        <form class="siteSearch olform" action="">
+        <form class="siteSearch olform" action="/search/lists">
             $:render_template("search/searchbox", q=q)
         </form>
     </div>
 
-    <div id="contentMeta">
-        $ results = get_results(q, offset=offset, limit=results_per_page)
+    $if lists:
+        <div class="mybooks-list">
+            <ul id="listResults" class="list-books">
+                $for list in lists:
+                    <li class="searchResultItem" id="list-$loop.index">$:render_template("lists/preview", list)</li>
+            </ul>
+        </div>
+    $else:
+        <div>
+            <span class="red">$_("No results found.")</span>
+            <a href="/search/inside?$urlencode(dict(q=q))">$_('Search for books containing the phrase "%s"?', q)</a>
+        </div> 
 
-        $if q and results.error:
-            <strong>
-                $for line in results.error.splitlines():
-                    $line
-                    $if not loop.last:
-                        <br>
-            </strong>
-
-        $if q and not results.error:
-            <div class="mybooks-list">
-                $if results.num_found:
-                    <ul id="listResults" class="list-books">
-                        for list in results:
-                            <li class="searchResultItem" id="list-$loop.index">$:render_template("lists/preview", list)</li>
-                    </ul>
-                $else:
-                    <div>
-                        <span class="red">$_("No results found.")</span>
-                        <a href="/search/inside?$urlencode(dict(q=q))">$_('Search for books containing the phrase "%s"?', q)</a>
-                    </div>
-            </div>
-    </div>
-    <div class="clearfix"></div>
 </div>

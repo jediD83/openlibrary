@@ -586,10 +586,14 @@ class advancedsearch(delegate.page):
 
 
 class list_search(delegate.page):
-    path = '/search/lists'
+    path = '/search/lists' #the template
 
     def GET(self):
-        return render_template('search/lists', self.get_results)
+        i = web.input(q='', offset='0', limit='10')
+        
+        lists = self.get_results(i.q, i.offset, i.limit)
+        
+        return render_template('search/lists', q=i.q, lists=lists) 
 
     def get_results(self, q, offset=0, limit=100):
         resp = run_solr_query(
@@ -611,14 +615,21 @@ class list_search_json(list_search):
         offset = safeint(i.offset, 0)
         limit = safeint(i.limit, 10)
         limit = min(100, limit)
-
+        '''
+        #Original codes
+        docs = self.get_results(i.q, offset=offset, limit=limit)
+        response = {'start': offset, 'docs': [doc.preview() for doc in docs]}   
+        '''
+    
         response = self.get_results(i.q, offset=offset, limit=limit)
-
-        # Backward compatibility.
-        raw_resp = response.raw_resp['response']
         
-        response['docs'] = [doc.preview() for doc in raw_resp['docs']]
-            
+        # Backward compatibility
+        # Update the response with previews (no redundant raw_resp)
+        #Didn't work or something else didn't. 
+        response['docs'] = [
+            {**doc, 'preview': doc.preview()} for doc in response.raw_resp['response']['docs']
+        ]
+        
         web.header('Content-Type', 'application/json')
         return delegate.RawText(json.dumps(response))
 
